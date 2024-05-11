@@ -1,0 +1,44 @@
+# pip install nltk
+# pip install textblob
+
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import matplotlib.pyplot as plt
+
+from textblob import TextBlob
+
+
+plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']  # 設置字體為微軟正黑體或其他支援中文的字體
+plt.rcParams['axes.unicode_minus'] = False  # 解決負數坐標軸顯示問題
+
+"""
+# 下載VADER情感分析的模型和詞彙
+nltk.download('vader_lexicon')
+"""
+# 初始化情感分析器
+sid = SentimentIntensityAnalyzer()
+
+# 虛構的社交媒體文本數據
+social_media_texts = [
+    "這個產品真是糟透了！我完全討厭它！",
+    "今天的天氣簡直是災難！我感到非常悲傷和沮喪！",
+    "這個政策太可怕了，它將毀掉我們的未來！",
+    "我真的不敢相信這個消息，我感到非常震驚和憤怒！",
+    "這個產品真是太好了！我完全愛上它了！",
+    "今天的天氣太棒了！我感到非常愉快和興奮！",
+    "這個政策太讚了，它將為我們的未來帶來巨大的好處！",
+    "我真的不敢相信這個消息，我感到非常驚喜和幸福！"
+]
+
+# 情感分析
+sentiments = []
+for text in social_media_texts:
+    sentiment = sid.polarity_scores(text)['compound']
+    sentiments.append(sentiment)
+
+# 繪製情感趨勢圖
+plt.plot(sentiments)
+plt.title('社交媒體情感趨勢分析')
+plt.xlabel('文本索引')
+plt.ylabel('情感分數')
+plt.show()
