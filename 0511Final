@@ -1,44 +1,103 @@
-# pip install nltk
-# pip install textblob
+# 安裝所需的Python套件
+# pip install nltk matplotlib pandas seaborn
 
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+import string
+import unittest
 
-from textblob import TextBlob
-
-
-plt.rcParams['font.sans-serif'] = ['Microsoft JhengHei']  # 設置字體為微軟正黑體或其他支援中文的字體
-plt.rcParams['axes.unicode_minus'] = False  # 解決負數坐標軸顯示問題
+# 確保下載必要的NLTK資源，首次運行時需要執行下面的命令
+# nltk.download('vader_lexicon')
+# nltk.download('punkt')
+# nltk.download('stopwords')
 
 """
-# 下載VADER情感分析的模型和詞彙
-nltk.download('vader_lexicon')
+    模組化: 定義一個情感分析器類，負責文本情感分析和文本清洗
 """
-# 初始化情感分析器
-sid = SentimentIntensityAnalyzer()
+class SentimentAnalyzer:
+    def __init__(self):
+        self.sid = SentimentIntensityAnalyzer()
 
-# 虛構的社交媒體文本數據
-social_media_texts = [
-    "這個產品真是糟透了！我完全討厭它！",
-    "今天的天氣簡直是災難！我感到非常悲傷和沮喪！",
-    "這個政策太可怕了，它將毀掉我們的未來！",
-    "我真的不敢相信這個消息，我感到非常震驚和憤怒！",
-    "這個產品真是太好了！我完全愛上它了！",
-    "今天的天氣太棒了！我感到非常愉快和興奮！",
-    "這個政策太讚了，它將為我們的未來帶來巨大的好處！",
-    "我真的不敢相信這個消息，我感到非常驚喜和幸福！"
-]
+    def analyze_sentiment(self, text):
+        """
+            分析文本的情感分數
 
-# 情感分析
-sentiments = []
-for text in social_media_texts:
-    sentiment = sid.polarity_scores(text)['compound']
-    sentiments.append(sentiment)
+            :param text: 要分析的文本
+            :return: 情感分數字典
+        """
+        cleaned_text = self.clean_text(text)           # 數據預處理: 清洗文本
+        return self.sid.polarity_scores(cleaned_text)  # 使用VADER進行情感分析
 
-# 繪製情感趨勢圖
-plt.plot(sentiments)
-plt.title('社交媒體情感趨勢分析')
-plt.xlabel('文本索引')
-plt.ylabel('情感分數')
-plt.show()
+    @staticmethod
+    def clean_text(text):
+        """
+            清洗文本，去除停用詞和標點符號
+
+            :param text: 原始文本
+            :return: 清洗後的文本
+        """
+        stop_words = set(stopwords.words('english'))  # 獲取停用詞集合
+        tokens = word_tokenize(text)     # 使用NLTK進行文本分詞
+        cleaned_tokens = [word for word in tokens if word.lower() not in stop_words and word not in string.punctuation]
+        return ' '.join(cleaned_tokens)  # 返回清洗後的文本
+
+
+# 改進的可視化: 繪製情感趨勢圖
+def plot_sentiment_trend(dates, scores):
+    """
+    繪製情感趨勢圖
+
+    :param dates: 日期列表
+    :param scores: 對應的情感分數列表
+    """
+    df = pd.DataFrame({'date': dates, 'sentiment_score': scores})     # 創建數據框
+    df['date'] = pd.to_datetime(df['date'])
+
+    plt.figure(figsize=(12, 6))
+    sns.lineplot(data=df, x='date', y='sentiment_score', marker='o')  # 使用Seaborn繪製折線圖
+    plt.title('Sentiment Trend Over Time', fontsize=15)
+    plt.xlabel('Date', fontsize=12)
+    plt.ylabel('Sentiment Score', fontsize=12)
+    plt.grid(True)
+    plt.show()
+
+
+if __name__ == "__main__":
+    analyzer = SentimentAnalyzer()  # 創建情感分析器實例
+
+    # 範例文本
+    texts = [
+        "NLTK is a leading platform for building Python programs to work with human language data.",
+        "I love using Python for data science.",
+        "Today is a bad day."
+    ]
+
+    dates = ['2024-06-01', '2024-06-02', '2024-06-03']
+    scores = [analyzer.analyze_sentiment(text)['compound'] for text in texts]  # 計算每個文本的情感分數
+
+    plot_sentiment_trend(dates, scores)
+
+
+"""
+    單元測試: 定義一個測試類來測試 SentimentAnalyzer 類
+"""
+"""
+class TestSentimentAnalyzer(unittest.TestCase):
+    def setUp(self):
+        self.analyzer = SentimentAnalyzer()  # 初始化情感分析器
+
+    def test_analyze_sentiment(self):
+        text = "I love using Python for data science."  # 測試文本
+        result = self.analyzer.analyze_sentiment(text)  # 分析情感
+        self.assertIn('compound', result)       # 檢查結果是否包含'compound'鍵
+        self.assertGreaterEqual(result['compound'], -1) # 檢查'compound'值是否在合理範圍內
+        self.assertLessEqual(result['compound'], 1)
+
+
+if __name__ == "__main__":
+    unittest.main()"""
