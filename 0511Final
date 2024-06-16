@@ -82,24 +82,3 @@ if __name__ == "__main__":
     scores = [analyzer.analyze_sentiment(text)['compound'] for text in texts]  # 計算每個文本的情感分數
 
     plot_sentiment_trend(dates, scores)
-
-
-"""
-    單元測試: 定義一個測試類來測試 SentimentAnalyzer 類
-"""
-"""
-class TestSentimentAnalyzer(unittest.TestCase):
-    def setUp(self):
-        self.analyzer = SentimentAnalyzer()  # 初始化情感分析器
-
-    def test_analyze_sentiment(self):
-        text = "I love using Python for data science."  # 測試文本
-        result = self.analyzer.analyze_sentiment(text)  # 分析情感
-        self.assertIn('compound', result)       # 檢查結果是否包含'compound'鍵
-        self.assertGreaterEqual(result['compound'], -1) # 檢查'compound'值是否在合理範圍內
-        self.assertLessEqual(result['compound'], 1)
-
-
-if __name__ == "__main__":
-    unittest.main()
-"""
